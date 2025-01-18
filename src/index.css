@@ -1,0 +1,12 @@
+/* Deshabilitar la selección de texto en todos los elementos del menú */
+.ant-menu-item {
+    user-select: none;
+  }
+  
+  .ant-menu {
+    user-select: none;
+  }
+  
+  *{
+user-select: none;
+  }

@@ -40,13 +40,13 @@ const InstituteDashboard = () => {
 
         {/* Tarjetas de Gestión */}
         <Row gutter={[16, 16]}>
-          <Col xs={24} sm={12} lg={12}>
+          <Col xs={24} sm={24} lg={16}>
             <CardGroup />
           </Col>
-          <Col xs={24} sm={12} lg={4}>
+          <Col xs={24} sm={6} lg={4}>
             <CardAddGroup />
           </Col>
-          <Col xs={24} sm={12} lg={8}>
+          <Col xs={24} sm={6} lg={4}>
             <CardTutors />
           </Col>
         </Row>

@@ -1,4 +1,3 @@
-import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { ConfigProvider, App as AntdApp } from 'antd'; // Importar `App` para manejar el contexto
 import esES from 'antd/es/locale/es_ES'; // Configuración de idioma español
@@ -15,11 +14,9 @@ const theme = {
 
 // Renderizamos la aplicación con ConfigProvider y AntdApp
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <ConfigProvider locale={esES} theme={theme}>
-      <AntdApp>
-        <App />
-      </AntdApp>
-    </ConfigProvider>
-  </StrictMode>
+  <ConfigProvider locale={esES} theme={theme}>
+    <AntdApp>
+      <App />
+    </AntdApp>
+  </ConfigProvider>
 );

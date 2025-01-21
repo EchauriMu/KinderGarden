@@ -5,8 +5,8 @@ import { PlusOutlined, UserOutlined } from '@ant-design/icons';
 import UserTable from './UserTable';
 import ChildTable from './ChildTable';
 import UserChildForm from './UserChildForm';
-import Statistics from './Statistics';
-import ActionButtons from './ActionButtons';
+import Statistics from './UserInfo';
+
 import { motion } from 'framer-motion';
 const { Header, Content } = Layout;
 
@@ -41,11 +41,9 @@ const UserChildManagement = () => {
       </Header>
     </motion.div>
   <Content style={{ padding: '20px' }}>
-        <Statistics users={[]} children={[]} /> {/* No hay usuarios o niños en este caso */}
+        <Statistics  /> {/* No hay usuarios o niños en este caso */}
 
-        <ActionButtons handleAddUser={handleAddUser} handleAddChild={handleAddChild} />
-
-        <Card title="User Management" style={{ marginTop: '20px' }} bordered={false}>
+    <Card title="User Management" style={{ marginTop: '20px' }} bordered={false}>
           <UserTable /> {/* Tabla estática */}
         </Card>
 

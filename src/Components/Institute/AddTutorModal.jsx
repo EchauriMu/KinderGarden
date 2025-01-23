@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Modal, Form, Input, Select, Button, Typography, Spin, Alert, message } from "antd";
+import { Modal, Form, Input, Select, Button, Typography, Spin, Alert } from "antd";
 import { UserAddOutlined } from "@ant-design/icons";
 import axiosInstance from "../../Api/AxiosInstance";
+import notificationConfig from "../../utils/notifications"; // Importamos la configuración
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -12,7 +13,11 @@ const ModalTutor = ({ visible, onCancel }) => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState(""); // Mensaje dinámico del alerta
+  const [alertType, setAlertType] = useState(""); // Tipo de alerta (error, warning, etc.)
+  const [isSubmitting, setIsSubmitting] = useState(false); // Estado de carga del botón
 
+  // Fetch users from the backend
   const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
@@ -25,7 +30,7 @@ const ModalTutor = ({ visible, onCancel }) => {
       }
     } catch (error) {
       console.error("Error al obtener los usuarios:", error);
-      message.error("Error al cargar los usuarios. Intenta nuevamente.");
+      notificationConfig('error', 'Error al cargar usuarios', 'Intenta nuevamente.');
     } finally {
       setLoading(false);
     }
@@ -45,24 +50,56 @@ const ModalTutor = ({ visible, onCancel }) => {
     };
   }, [visible, fetchUsers, form]);
 
+  // Handle user selection change
   const handleUserChange = (value) => {
     setSelectedUser(value);
     form.setFieldsValue({ userId: value });
   };
 
-  const handleOk = () => {
-    form
-      .validateFields()
-      .then((values) => {
-        console.log("Datos del Tutor:", { ...values, userId: selectedUser });
-        message.success("Tutor agregado exitosamente");
-        onCancel();
-      })
-      .catch((info) => {
-        console.log("Validate Failed:", info);
-        message.error("Por favor, complete todos los campos correctamente");
-        setShowAlert(true);
-      });
+  // Handle form submit and create tutor
+  const handleOk = async () => {
+    try {
+      const values = await form.validateFields();
+
+      const tutorData = {
+        userId: selectedUser, // The selected user ID
+        fullName: values.fullName,
+        phone: values.phone,
+        address: values.address
+      };
+
+      // Establecer el estado de carga al enviar el formulario
+      setIsSubmitting(true);
+
+      // Hacer POST request al backend para crear el tutor
+      const response = await axiosInstance.post("/tutors/create", tutorData);
+
+      // Check if the response is successful
+      if (response.status === 201) {
+        notificationConfig('success', 'Tutor agregado exitosamente', 'El tutor ha sido agregado correctamente.');
+        onCancel(); // Close the modal
+      }
+    } catch (error) {
+      console.error("Error al crear tutor:", error);
+
+      // Restablecemos el estado de alertas
+      setShowAlert(true);
+
+      // Verificamos si la respuesta del error contiene un mensaje
+      let errorMessage = 'Error al agregar tutor, por favor intente nuevamente.';
+
+      // Si la respuesta contiene un mensaje del backend, lo usamos
+      if (error.response && error.response.data && error.response.data.message) {
+        errorMessage = error.response.data.message; // El mensaje de error de la API
+      }
+
+      // Mostrar el mensaje de error en el estado
+      setAlertMessage(errorMessage);
+      setAlertType("error"); // Indicamos que es un error
+    } finally {
+      // Restablecer el estado de carga después de que la promesa haya terminado
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -84,33 +121,28 @@ const ModalTutor = ({ visible, onCancel }) => {
           type="primary"
           onClick={handleOk}
           icon={<UserAddOutlined />}
+          loading={isSubmitting} // Mostrar el estado de carga
+          disabled={isSubmitting} // Deshabilitar el botón durante la carga
         >
-          Guardar
+          {isSubmitting ? 'Guardando...' : 'Guardar'}
         </Button>,
       ]}
       destroyOnClose
     >
       <Title level={5}>Información del Tutor</Title>
 
-      <Alert
-        message="Este modal te permite agregar un nuevo tutor."
-        description="Selecciona un usuario y llena los campos correspondientes para agregarlo como tutor."
-        type="info"
-        showIcon
-        style={{ marginBottom: "16px" }}
-      />
-
+      {/* Solo mostramos este alert si hay un error */}
       {showAlert && (
         <Alert
           message="Error al guardar"
-          description="Por favor, asegúrese de que todos los campos estén correctamente completados."
-          type="error"
+          description={alertMessage}
+          type={alertType} // Tipo dinámico de alerta
           showIcon
           style={{ marginBottom: "16px" }}
         />
       )}
 
-      {users.length === 0 && !loading && (
+      {users.length === 0 && !loading && !showAlert && (
         <Alert
           message="No hay usuarios disponibles"
           description="No se pudieron cargar usuarios. Intente nuevamente más tarde."
@@ -178,8 +210,7 @@ const ModalTutor = ({ visible, onCancel }) => {
             { required: true, message: "Por favor ingrese un teléfono válido" },
             {
               pattern: /^[+]?[0-9]{10,14}$/,
-              message:
-                "Por favor ingrese un teléfono válido (ej. +1234567890)",
+              message: "Por favor ingrese un teléfono válido (ej. +1234567890)",
             },
           ]}
         >

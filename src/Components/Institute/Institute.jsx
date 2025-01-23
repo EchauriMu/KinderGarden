@@ -1,7 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import InstituteInfo from "./InstituteInfo";
-import CardGroup from "./CardGroup";
+import CardGroup from "./GroupsList/CardGroup";
 import CardAddGroup from "./CardAddGroup";
 import CardTutors from "./CardTutors";
 import { Layout, Row, Col, Card, Button, Typography, Statistic } from "antd";

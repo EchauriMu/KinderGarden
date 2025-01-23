@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Card, Typography } from "antd";
 import { motion } from "framer-motion";
 import { UserAddOutlined } from "@ant-design/icons";
-import ModalTutor from "./TutorModal";
+import ModalTutor from "./AddTutorModal";
 
 const { Title, Paragraph } = Typography;
 
